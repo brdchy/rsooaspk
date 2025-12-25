@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors inline-block text-center;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300 active:bg-gray-400;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+  
+  .textarea {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+  
+  /* Улучшенная адаптивность таблиц */
+  .table-responsive {
+    @apply block md:table w-full;
+  }
+  
+  .table-responsive thead {
+    @apply hidden md:table-header-group;
+  }
+  
+  .table-responsive tbody {
+    @apply block md:table-row-group;
+  }
+  
+  .table-responsive tr {
+    @apply block md:table-row border md:border-0 mb-4 md:mb-0;
+  }
+  
+  .table-responsive td {
+    @apply block md:table-cell px-4 py-2 md:px-6 md:py-4;
+  }
+}
+
