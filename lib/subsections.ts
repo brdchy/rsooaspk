@@ -25,3 +25,4 @@ export function getAllSubsectionsForSection(section: string): string[] {
   return predefinedSubsections[section] || []
 }
 
+
