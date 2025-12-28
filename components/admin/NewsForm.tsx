@@ -16,7 +16,7 @@ export default function NewsForm({ news }: NewsFormProps) {
   const [content, setContent] = useState(news?.content || '')
   const [excerpt, setExcerpt] = useState(news?.excerpt || '')
   const [image, setImage] = useState(news?.image || '')
-  const [published, setPublished] = useState(news?.published || false)
+  const [published, setPublished] = useState(news?.published ?? true) // По умолчанию опубликовано
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 

@@ -6,10 +6,9 @@ import { getSiteSettings } from '@/lib/settings'
 
 async function getLatestNews() {
   try {
-    const news = await prisma.news.findMany({
+    // Сначала получаем все опубликованные новости
+    const allNews = await prisma.news.findMany({
       where: { published: true },
-      orderBy: { publishedAt: 'desc' },
-      take: 3,
       include: {
         author: {
           select: {
@@ -18,7 +17,17 @@ async function getLatestNews() {
         },
       },
     })
-    return news
+    
+    // Сортируем вручную: сначала по publishedAt (если есть), затем по createdAt
+    const sortedNews = allNews
+      .sort((a, b) => {
+        const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : new Date(a.createdAt).getTime()
+        const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : new Date(b.createdAt).getTime()
+        return dateB - dateA // Сортируем по убыванию (новые первыми)
+      })
+      .slice(0, 3) // Берем первые 3
+    
+    return sortedNews
   } catch (error) {
     console.error('Error fetching news:', error)
     return []
