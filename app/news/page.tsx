@@ -1,6 +1,10 @@
 import { prisma } from '@/lib/prisma'
 import NewsCard from '@/components/NewsCard'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getAllNews() {
   console.log('[NEWS PAGE] ===== Получение всех новостей - START =====')
   console.log('[NEWS PAGE] Timestamp:', new Date().toISOString())

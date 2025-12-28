@@ -78,9 +78,10 @@ export default function SettingsForm({ settings }: SettingsFormProps) {
 
       setMessage({
         type: 'success',
-        text: 'Настройки успешно сохранены',
+        text: 'Настройки успешно сохранены! Обновите главную страницу, чтобы увидеть изменения.',
       })
 
+      // Обновляем текущую страницу
       router.refresh()
     } catch (error: any) {
       console.error('[SETTINGS] ===== SettingsForm Submit - ERROR =====')

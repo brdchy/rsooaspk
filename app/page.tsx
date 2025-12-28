@@ -4,6 +4,10 @@ import NewsCard from '@/components/NewsCard'
 import EventCard from '@/components/EventCard'
 import { getSiteSettings } from '@/lib/settings'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getLatestNews() {
   console.log('[HOME] ===== Получение последних новостей - START =====')
   console.log('[HOME] Timestamp:', new Date().toISOString())

@@ -4,6 +4,10 @@ import VKSyncButton from '@/components/admin/VKSyncButton'
 import DeleteNewsButton from '@/components/admin/DeleteNewsButton'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getAllNews() {
   try {
     const news = await prisma.news.findMany({
