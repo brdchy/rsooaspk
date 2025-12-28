@@ -39,15 +39,38 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Проверяем, есть ли пользователи, связанные с этим филиалом
+    const usersCount = await prisma.user.count({
+      where: { regionId: params.id },
+    })
+
+    if (usersCount > 0) {
+      return NextResponse.json(
+        { 
+          error: `Невозможно удалить филиал. С ним связано ${usersCount} пользователей. Сначала удалите или переместите пользователей.` 
+        },
+        { status: 400 }
+      )
+    }
+
     await prisma.region.delete({
       where: { id: params.id },
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting region:', error)
+    
+    // Обработка ошибки внешнего ключа
+    if (error.code === 'P2003') {
+      return NextResponse.json(
+        { error: 'Невозможно удалить филиал. С ним связаны другие данные.' },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Ошибка при удалении филиала' },
+      { error: error.message || 'Ошибка при удалении филиала' },
       { status: 500 }
     )
   }
