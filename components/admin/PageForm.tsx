@@ -163,7 +163,7 @@ export default function PageForm({ page }: PageFormProps) {
           onChange={(e) => setSlug(e.target.value)}
           required
           className="input"
-          pattern="[a-z0-9-]+"
+          pattern="[a-z0-9\-]+"
         />
       </div>
 

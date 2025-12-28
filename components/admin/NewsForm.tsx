@@ -60,7 +60,10 @@ export default function NewsForm({ news }: NewsFormProps) {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Ошибка при сохранении')
+        const errorMessage = data.error || 'Ошибка при сохранении'
+        const errorDetails = data.details ? ` (${data.details})` : ''
+        setError(`${errorMessage}${errorDetails}`)
+        console.error('API Error:', data)
         return
       }
 
@@ -102,7 +105,7 @@ export default function NewsForm({ news }: NewsFormProps) {
           onChange={(e) => setSlug(e.target.value)}
           required
           className="input"
-          pattern="[a-z0-9-]+"
+          pattern="[a-z0-9\-]+"
         />
         <p className="text-sm text-gray-500 mt-1">
           Только строчные буквы, цифры и дефисы
