@@ -423,6 +423,8 @@ export async function getAllVKPostsPublic(
         // Если RSS тоже не работает, пробуем упрощенный парсинг
         console.warn('RSS фид не доступен, используем упрощенный парсинг HTML')
         try {
+          // Динамический импорт чтобы избежать циклических зависимостей
+          const { getVKWallPostsSimple } = await import('./vk-scraper-simple')
           return await getVKWallPostsSimple(maxPosts || 20, 0)
         } catch (simpleError) {
           // Если и это не работает, пробуем полный парсинг

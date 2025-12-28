@@ -14,6 +14,8 @@
 
 ## Установка и запуск
 
+### Локальная разработка (без Docker)
+
 1. Установите зависимости:
 ```bash
 npm install
@@ -43,6 +45,27 @@ npm run dev
 ```
 
 Откройте [http://localhost:3000](http://localhost:3000) в браузере.
+
+### Быстрый запуск с Docker (для продакшна)
+
+**Важно:** При использовании Docker шаги 3-4 (инициализация БД) **не нужны** - они выполняются автоматически при первом запуске контейнера.
+
+1. Создайте файл `.env`:
+```env
+DATABASE_URL="file:./data/prisma.db"
+NODE_ENV=production
+PORT=3000
+HOSTNAME=0.0.0.0
+NEXTAUTH_SECRET="your-strong-secret-key-here"
+NEXTAUTH_URL="https://rsooaspk.ru"
+```
+
+2. Запустите Docker Compose:
+```bash
+docker-compose up -d --build
+```
+
+База данных автоматически создастся и заполнится начальными данными при первом запуске.
 
 ## Доступ к админ-панели
 

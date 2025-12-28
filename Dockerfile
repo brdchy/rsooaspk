@@ -37,8 +37,8 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Устанавливаем tsx глобально для запуска seed скрипта
-RUN npm install -g tsx
+# Устанавливаем tsx и prisma глобально для запуска seed скрипта и миграций
+RUN npm install -g tsx prisma
 
 # Создаем директории для базы данных и файлов
 RUN mkdir -p /app/data /app/public/uploads && \
@@ -54,9 +54,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 
 # Копируем необходимые файлы для инициализации БД
+# (prisma уже скопирована выше, но убеждаемся что seed.ts тоже скопирован)
 COPY --chown=nextjs:nodejs docker-entrypoint.sh ./
-COPY --chown=nextjs:nodejs prisma ./prisma/
 RUN chmod +x docker-entrypoint.sh
+
+# Убеждаемся что необходимые зависимости доступны для seed скрипта
+# Prisma Client, bcryptjs и другие нужные пакеты
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/bcryptjs ./node_modules/bcryptjs
 
 USER nextjs
 

@@ -25,17 +25,20 @@ if echo "$DATABASE_URL" | grep -q "file:"; then
   mkdir -p "$DB_DIR"
   
   if [ ! -f "$DB_FILE" ]; then
+    echo "=========================================="
     echo "База данных не найдена. Инициализируем..."
-    npx prisma db push --skip-generate --accept-data-loss || echo "Предупреждение: Не удалось применить схему базы данных"
+    echo "=========================================="
+    prisma db push --skip-generate --accept-data-loss || echo "Предупреждение: Не удалось применить схему базы данных"
     
     # Заполняем базу данных начальными данными
     if [ -f "/app/prisma/seed.ts" ]; then
       echo "Заполняем базу данных начальными данными..."
-      npx tsx prisma/seed.ts || echo "Предупреждение: Сидирование базы данных не удалось (возможно, данные уже существуют)"
+      tsx /app/prisma/seed.ts || echo "Предупреждение: Сидирование базы данных не удалось (возможно, данные уже существуют)"
+      echo "Инициализация завершена!"
     fi
   else
     echo "База данных найдена. Проверяем схему..."
-    npx prisma db push --skip-generate --accept-data-loss || echo "Предупреждение: Не удалось обновить схему базы данных"
+    prisma db push --skip-generate --accept-data-loss || echo "Предупреждение: Не удалось обновить схему базы данных"
   fi
 fi
 
