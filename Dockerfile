@@ -34,6 +34,16 @@ ENV NODE_ENV production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
+# Устанавливаем OpenSSL для Prisma (нужен для работы с SQLite)
+# Prisma требует libssl.so.1.1 - пробуем установить openssl1.1-compat, если не доступен, создаем симлинки
+RUN apk add --no-cache openssl libc6-compat && \
+    (apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main openssl1.1-compat 2>/dev/null || \
+     (mkdir -p /usr/local/lib && \
+      ln -sf /usr/lib/libssl.so.3 /usr/lib/libssl.so.1.1 && \
+      ln -sf /usr/lib/libcrypto.so.3 /usr/lib/libcrypto.so.1.1 && \
+      ln -sf /usr/lib/libssl.so.3 /usr/local/lib/libssl.so.1.1 && \
+      ln -sf /usr/lib/libcrypto.so.3 /usr/local/lib/libcrypto.so.1.1))
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
