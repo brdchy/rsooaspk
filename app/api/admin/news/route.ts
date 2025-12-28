@@ -3,6 +3,21 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
+    // Проверка подключения к БД
+    try {
+      await prisma.$connect()
+    } catch (dbError: any) {
+      console.error('Database connection error:', dbError)
+      return NextResponse.json(
+        { 
+          error: 'Ошибка подключения к базе данных',
+          details: dbError.message || 'Не удалось подключиться к БД',
+          code: 'DB_CONNECTION_ERROR',
+        },
+        { status: 500 }
+      )
+    }
+
     const body = await request.json()
     const { title, slug, content, excerpt, image, published, publishedAt } = body
 
@@ -45,7 +60,7 @@ export async function POST(request: NextRequest) {
       message: error.message,
       code: error.code,
       meta: error.meta,
-      stack: error.stack,
+      stack: error.stack?.substring(0, 500), // Ограничиваем длину stack trace
     })
     
     if (error.code === 'P2002') {
@@ -55,12 +70,15 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Возвращаем детальную ошибку для отладки (включая в production для диагностики)
+    // Возвращаем детальную ошибку для отладки
+    const errorMessage = error.message || 'Неизвестная ошибка'
+    const errorCode = error.code || 'UNKNOWN'
+    
     return NextResponse.json(
       { 
         error: 'Ошибка при создании новости',
-        details: error.message || 'Неизвестная ошибка',
-        code: error.code || 'UNKNOWN',
+        details: errorMessage,
+        code: errorCode,
       },
       { status: 500 }
     )
