@@ -60,6 +60,7 @@ export default function AdminLayout({
     { name: 'Страницы', href: '/admin/pages' },
     { name: 'Филиалы', href: '/admin/regions' },
     { name: 'Пользователи', href: '/admin/users' },
+    { name: 'Названия разделов', href: '/admin/section-titles' },
     { name: 'Настройки', href: '/admin/settings' },
   ]
 

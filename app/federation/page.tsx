@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { getSectionTitle, getSubsectionsWithTitles } from '@/lib/sectionTitles'
 
 // Отключаем кэширование для динамического контента
 export const dynamic = 'force-dynamic'
@@ -21,41 +22,26 @@ async function getPage(section: string, subsection?: string) {
 }
 
 export default async function FederationPage() {
-  const sections = [
-    {
-      title: 'Президент',
-      href: '/federation/president',
-      description: 'Информация о президенте Федерации',
-    },
-    {
-      title: 'Президиум',
-      href: '/federation/presidium',
-      description: 'Состав президиума Федерации',
-    },
-    {
-      title: 'История',
-      href: '/federation/history',
-      description: 'История Федерации страйкбола России',
-    },
-    {
-      title: 'Контакты',
-      href: '/federation/contacts',
-      description: 'Контактная информация',
-    },
-  ]
+  const sectionTitle = await getSectionTitle('federation')
+  const subsections = await getSubsectionsWithTitles('federation')
 
   return (
     <div className="container-custom py-12">
-      <h1 className="text-4xl font-bold mb-8">Федерация</h1>
+      <h1 className="text-4xl font-bold mb-8">{sectionTitle}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {sections.map((section) => (
+        {subsections.map((subsection) => (
           <Link
-            key={section.href}
-            href={section.href}
+            key={subsection.key}
+            href={`/federation/${subsection.key}`}
             className="card p-6 hover:shadow-lg transition-shadow"
           >
-            <h2 className="text-2xl font-bold mb-2">{section.title}</h2>
-            <p className="text-gray-600">{section.description}</p>
+            <h2 className="text-2xl font-bold mb-2">{subsection.title}</h2>
+            <p className="text-gray-600">
+              {subsection.key === 'president' && 'Информация о президенте Федерации'}
+              {subsection.key === 'presidium' && 'Состав президиума Федерации'}
+              {subsection.key === 'history' && 'История Федерации страйкбола России'}
+              {subsection.key === 'contacts' && 'Контактная информация'}
+            </p>
           </Link>
         ))}
       </div>

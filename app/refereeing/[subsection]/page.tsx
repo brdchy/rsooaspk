@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { getSectionTitle, getSubsectionTitle } from '@/lib/sectionTitles'
 
 // Отключаем кэширование для динамического контента
 export const dynamic = 'force-dynamic'
@@ -20,21 +21,14 @@ async function getPage(section: string, subsection: string) {
   }
 }
 
-const subsectionTitles: Record<string, string> = {
-  regulations: 'Положения о судьях',
-  requirements: 'Квалификационные требования',
-  rules: 'Правила соревнований',
-  registry: 'Реестр судей',
-  training: 'Обучение судей',
-}
-
 export default async function RefereeingSubsectionPage({
   params,
 }: {
   params: { subsection: string }
 }) {
   const page = await getPage('refereeing', params.subsection)
-  const title = subsectionTitles[params.subsection] || params.subsection
+  const sectionTitle = await getSectionTitle('refereeing')
+  const title = await getSubsectionTitle('refereeing', params.subsection)
 
   return (
     <div className="container-custom py-12">
@@ -42,7 +36,7 @@ export default async function RefereeingSubsectionPage({
         href="/refereeing"
         className="text-primary-600 hover:text-primary-700 mb-4 inline-block"
       >
-        ← Назад к разделу Судейство
+        ← Назад к разделу {sectionTitle}
       </Link>
 
       <h1 className="text-4xl font-bold mb-8">{title}</h1>

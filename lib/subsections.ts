@@ -19,6 +19,8 @@ export const predefinedSubsections: Record<string, string[]> = {
     'registry',
     'training',
   ],
+  events: ['calendar', 'plan', 'regulations', 'protocols'],
+  documents: ['ministry', 'decisions', 'teams', 'samples', 'charter'],
 }
 
 export function getAllSubsectionsForSection(section: string): string[] {

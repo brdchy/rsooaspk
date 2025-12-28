@@ -1,10 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import { predefinedSubsections } from '@/lib/subsections'
 
-const navigation = [
+interface NavigationItem {
+  name: string
+  href: string
+  children?: Array<{ name: string; href: string }>
+}
+
+const defaultNavigation: NavigationItem[] = [
   {
     name: 'Федерация',
     href: '/federation',
@@ -72,6 +79,76 @@ export default function Header() {
   const pathname = usePathname()
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [navigation, setNavigation] = useState<NavigationItem[]>(defaultNavigation)
+
+  useEffect(() => {
+    const loadNavigation = async () => {
+      try {
+        const response = await fetch('/api/admin/section-titles')
+        if (response.ok) {
+          const data = await response.json()
+          const { sectionTitles, subsectionTitles } = data
+
+          const sections: NavigationItem[] = [
+            {
+              name: sectionTitles.federation || 'Федерация',
+              href: '/federation',
+              children: (predefinedSubsections.federation || []).map((key) => ({
+                name: subsectionTitles.federation?.[key] || key,
+                href: `/federation/${key}`,
+              })),
+            },
+            {
+              name: sectionTitles['about-sport'] || 'О спорте',
+              href: '/about-sport',
+              children: (predefinedSubsections['about-sport'] || []).map((key) => ({
+                name: subsectionTitles['about-sport']?.[key] || key,
+                href: `/about-sport/${key}`,
+              })),
+            },
+            {
+              name: sectionTitles.events || 'Мероприятия',
+              href: '/events',
+              children: (predefinedSubsections.events || []).map((key) => ({
+                name: subsectionTitles.events?.[key] || key,
+                href: `/events/${key}`,
+              })),
+            },
+            {
+              name: sectionTitles.news || 'Новости',
+              href: '/news',
+            },
+            {
+              name: sectionTitles.refereeing || 'Судейство',
+              href: '/refereeing',
+              children: (predefinedSubsections.refereeing || []).map((key) => ({
+                name: subsectionTitles.refereeing?.[key] || key,
+                href: `/refereeing/${key}`,
+              })),
+            },
+            {
+              name: sectionTitles.documents || 'Документы',
+              href: '/documents',
+              children: (predefinedSubsections.documents || []).map((key) => ({
+                name: subsectionTitles.documents?.[key] || key,
+                href: `/documents/${key}`,
+              })),
+            },
+            {
+              name: sectionTitles.regions || 'Филиалы',
+              href: '/regions',
+            },
+          ]
+
+          setNavigation(sections)
+        }
+      } catch (error) {
+        console.error('Error loading navigation titles:', error)
+      }
+    }
+
+    loadNavigation()
+  }, [])
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
