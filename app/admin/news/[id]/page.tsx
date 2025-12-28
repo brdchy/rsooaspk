@@ -3,6 +3,10 @@ import { notFound } from 'next/navigation'
 import NewsForm from '@/components/admin/NewsForm'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getNewsById(id: string) {
   try {
     const news = await prisma.news.findUnique({

@@ -2,6 +2,10 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import RegionForm from '@/components/admin/RegionForm'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getRegionById(id: string) {
   try {
     const region = await prisma.region.findUnique({

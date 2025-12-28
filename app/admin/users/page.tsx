@@ -1,5 +1,9 @@
 import { prisma } from '@/lib/prisma'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getAllUsers() {
   try {
     const users = await prisma.user.findMany({

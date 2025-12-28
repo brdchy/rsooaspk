@@ -1,6 +1,10 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getAllEvents() {
   try {
     const events = await prisma.event.findMany({

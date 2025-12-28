@@ -2,6 +2,10 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import DocumentForm from '@/components/admin/DocumentForm'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getDocumentById(id: string) {
   try {
     const document = await prisma.document.findUnique({

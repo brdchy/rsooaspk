@@ -5,6 +5,10 @@ import {
   predefinedSubsections,
 } from '@/lib/subsections'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams

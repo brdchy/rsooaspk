@@ -2,6 +2,10 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import EventForm from '@/components/admin/EventForm'
 
+// Отключаем кэширование для динамического контента
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getEventById(id: string) {
   try {
     const event = await prisma.event.findUnique({
