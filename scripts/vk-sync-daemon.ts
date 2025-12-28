@@ -20,6 +20,7 @@ import {
 const prisma = new PrismaClient()
 
 const DEFAULT_INTERVAL = 3600000 // 1 час в миллисекундах
+const VK_GROUP_ID = process.env.VK_GROUP_ID || '-225463959' // ID группы для создания ссылок
 
 /**
  * Синхронизация новых постов

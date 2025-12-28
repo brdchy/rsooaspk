@@ -1,10 +1,14 @@
-# Используем официальный образ Node.js
-FROM node:20-alpine AS base
+# Используем официальный образ Node.js на Debian для лучшей совместимости с Prisma
+FROM node:20-slim AS base
 
 # Устанавливаем зависимости только при необходимости
 FROM base AS deps
-# Проверяем https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine для понимания, почему libc6-compat может быть нужен.
-RUN apk add --no-cache libc6-compat
+# Устанавливаем необходимые системные библиотеки для Prisma и других зависимостей
+RUN apt-get update && apt-get install -y \
+    openssl \
+    libssl-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Копируем файлы зависимостей
@@ -16,6 +20,11 @@ RUN npm ci
 
 # Ребилдим исходный код только при необходимости
 FROM base AS builder
+# Убеждаемся что OpenSSL установлен для Prisma генерации
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -34,15 +43,12 @@ ENV NODE_ENV production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-# Устанавливаем OpenSSL для Prisma (нужен для работы с SQLite)
-# Prisma требует libssl.so.1.1 - пробуем установить openssl1.1-compat, если не доступен, создаем симлинки
-RUN apk add --no-cache openssl libc6-compat && \
-    (apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main openssl1.1-compat 2>/dev/null || \
-     (mkdir -p /usr/local/lib && \
-      ln -sf /usr/lib/libssl.so.3 /usr/lib/libssl.so.1.1 && \
-      ln -sf /usr/lib/libcrypto.so.3 /usr/lib/libcrypto.so.1.1 && \
-      ln -sf /usr/lib/libssl.so.3 /usr/local/lib/libssl.so.1.1 && \
-      ln -sf /usr/lib/libcrypto.so.3 /usr/local/lib/libcrypto.so.1.1))
+# Устанавливаем OpenSSL и другие необходимые библиотеки для Prisma
+# В Debian-based образах OpenSSL уже установлен, но убеждаемся что всё на месте
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
