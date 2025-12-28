@@ -5,7 +5,11 @@ import EventCard from '@/components/EventCard'
 import { getSiteSettings } from '@/lib/settings'
 
 async function getLatestNews() {
+  console.log('[HOME] ===== Получение последних новостей - START =====')
+  console.log('[HOME] Timestamp:', new Date().toISOString())
+  
   try {
+    console.log('[HOME] Запрос к БД: опубликованные новости...')
     // Сначала получаем все опубликованные новости
     const allNews = await prisma.news.findMany({
       where: { published: true },
@@ -18,6 +22,8 @@ async function getLatestNews() {
       },
     })
     
+    console.log('[HOME] Получено новостей из БД:', allNews.length)
+    
     // Сортируем вручную: сначала по publishedAt (если есть), затем по createdAt
     const sortedNews = allNews
       .sort((a, b) => {
@@ -27,9 +33,16 @@ async function getLatestNews() {
       })
       .slice(0, 3) // Берем первые 3
     
+    console.log('[HOME] ✓ Возвращаем', sortedNews.length, 'последних новостей')
+    console.log('[HOME] ===== Получение последних новостей - SUCCESS =====')
+    
     return sortedNews
-  } catch (error) {
-    console.error('Error fetching news:', error)
+  } catch (error: any) {
+    console.error('[HOME] ===== Получение последних новостей - ERROR =====')
+    console.error('[HOME] Тип ошибки:', error?.constructor?.name)
+    console.error('[HOME] Сообщение:', error?.message)
+    console.error('[HOME] Stack:', error?.stack)
+    console.error('[HOME] ===== Получение последних новостей - END (ERROR) =====')
     return []
   }
 }
@@ -52,10 +65,23 @@ async function getUpcomingEvents() {
 }
 
 export default async function Home() {
+  console.log('[PAGE] ===== Главная страница - START =====')
+  console.log('[PAGE] Timestamp:', new Date().toISOString())
+  
   const news = await getLatestNews()
+  console.log('[PAGE] Получено новостей:', news.length)
+  
   const events = await getUpcomingEvents()
+  console.log('[PAGE] Получено мероприятий:', events.length)
+  
   const settings = await getSiteSettings()
   const heroBackground = settings.heroBackground || ''
+  console.log('[PAGE] heroBackground установлен:', !!heroBackground)
+  if (heroBackground) {
+    console.log('[PAGE] heroBackground URL:', heroBackground.substring(0, 100))
+  }
+  
+  console.log('[PAGE] ===== Главная страница - END =====')
 
   return (
     <div>

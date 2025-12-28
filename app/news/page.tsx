@@ -2,7 +2,11 @@ import { prisma } from '@/lib/prisma'
 import NewsCard from '@/components/NewsCard'
 
 async function getAllNews() {
+  console.log('[NEWS PAGE] ===== Получение всех новостей - START =====')
+  console.log('[NEWS PAGE] Timestamp:', new Date().toISOString())
+  
   try {
+    console.log('[NEWS PAGE] Запрос к БД: опубликованные новости...')
     // Сначала получаем все опубликованные новости
     const allNews = await prisma.news.findMany({
       where: { published: true },
@@ -15,6 +19,16 @@ async function getAllNews() {
       },
     })
     
+    console.log('[NEWS PAGE] Получено новостей из БД:', allNews.length)
+    console.log('[NEWS PAGE] Детали новостей:', allNews.map(n => ({
+      id: n.id,
+      title: n.title.substring(0, 30) + '...',
+      slug: n.slug,
+      published: n.published,
+      publishedAt: n.publishedAt?.toISOString() || null,
+      createdAt: n.createdAt.toISOString(),
+    })))
+    
     // Сортируем вручную: сначала по publishedAt (если есть), затем по createdAt
     const sortedNews = allNews.sort((a, b) => {
       const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : new Date(a.createdAt).getTime()
@@ -22,9 +36,16 @@ async function getAllNews() {
       return dateB - dateA // Сортируем по убыванию (новые первыми)
     })
     
+    console.log('[NEWS PAGE] ✓ Новости отсортированы, возвращаем', sortedNews.length, 'шт.')
+    console.log('[NEWS PAGE] ===== Получение всех новостей - SUCCESS =====')
+    
     return sortedNews
-  } catch (error) {
-    console.error('Error fetching news:', error)
+  } catch (error: any) {
+    console.error('[NEWS PAGE] ===== Получение всех новостей - ERROR =====')
+    console.error('[NEWS PAGE] Тип ошибки:', error?.constructor?.name)
+    console.error('[NEWS PAGE] Сообщение:', error?.message)
+    console.error('[NEWS PAGE] Stack:', error?.stack)
+    console.error('[NEWS PAGE] ===== Получение всех новостей - END (ERROR) =====')
     return []
   }
 }

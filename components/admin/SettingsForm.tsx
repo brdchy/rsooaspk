@@ -20,25 +20,61 @@ export default function SettingsForm({ settings }: SettingsFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const startTime = Date.now()
+    console.log('[SETTINGS] ===== SettingsForm Submit - START =====')
+    console.log('[SETTINGS] Timestamp:', new Date().toISOString())
+    
     setLoading(true)
     setMessage(null)
 
+    const formData = {
+      heroBackground,
+    }
+
+    console.log('[SETTINGS] Данные формы:', {
+      heroBackground: heroBackground?.substring(0, 100) || 'не указано',
+      heroBackgroundLength: heroBackground?.length || 0,
+    })
+
     try {
+      console.log('[SETTINGS] Отправка запроса к /api/admin/settings...')
       const response = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          heroBackground,
-        }),
+        body: JSON.stringify(formData),
+      })
+
+      console.log('[SETTINGS] Ответ получен:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
       })
 
       const data = await response.json()
+      console.log('[SETTINGS] Данные ответа:', data)
 
       if (!response.ok) {
-        throw new Error(data.error || 'Ошибка при сохранении')
+        const errorMsg = data.error || 'Ошибка при сохранении'
+        const errorDetails = data.details ? ` (${data.details})` : ''
+        const errorCode = data.code ? ` [${data.code}]` : ''
+        const fullError = `${errorMsg}${errorDetails}${errorCode}`
+        
+        console.error('[SETTINGS] ✗ Ошибка API:', {
+          status: response.status,
+          error: errorMsg,
+          details: data.details,
+          code: data.code,
+          fullResponse: data,
+        })
+        
+        throw new Error(fullError)
       }
+
+      console.log('[SETTINGS] ✓ Настройки успешно сохранены')
+      console.log('[SETTINGS] ===== SettingsForm Submit - SUCCESS =====')
+      console.log('[SETTINGS] Время выполнения:', Date.now() - startTime, 'ms')
 
       setMessage({
         type: 'success',
@@ -47,6 +83,14 @@ export default function SettingsForm({ settings }: SettingsFormProps) {
 
       router.refresh()
     } catch (error: any) {
+      console.error('[SETTINGS] ===== SettingsForm Submit - ERROR =====')
+      console.error('[SETTINGS] Тип ошибки:', error?.constructor?.name || 'Unknown')
+      console.error('[SETTINGS] Сообщение:', error?.message)
+      console.error('[SETTINGS] Stack:', error?.stack)
+      console.error('[SETTINGS] Полная ошибка:', error)
+      console.error('[SETTINGS] Время выполнения до ошибки:', Date.now() - startTime, 'ms')
+      console.error('[SETTINGS] ===== SettingsForm Submit - END (ERROR) =====')
+      
       setMessage({
         type: 'error',
         text: error.message || 'Ошибка при сохранении настроек',

@@ -34,6 +34,11 @@ export default function NewsForm({ news }: NewsFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const startTime = Date.now()
+    console.log('[FORM] ===== NewsForm Submit - START =====')
+    console.log('[FORM] Timestamp:', new Date().toISOString())
+    console.log('[FORM] Режим:', news ? 'EDIT' : 'CREATE')
+    
     setError('')
     setLoading(true)
 
@@ -41,36 +46,81 @@ export default function NewsForm({ news }: NewsFormProps) {
       const url = news ? `/api/admin/news/${news.id}` : '/api/admin/news'
       const method = news ? 'PUT' : 'POST'
 
+      const formData = {
+        title,
+        slug,
+        content,
+        excerpt,
+        image,
+        published,
+        publishedAt: published ? new Date().toISOString() : null,
+      }
+
+      console.log('[FORM] Данные формы:', {
+        title: title.substring(0, 50) + (title.length > 50 ? '...' : ''),
+        slug,
+        contentLength: content.length,
+        excerptLength: excerpt.length,
+        image: image || 'не указано',
+        published,
+        publishedAt: formData.publishedAt,
+      })
+
+      console.log('[FORM] Отправка запроса:', { url, method })
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          title,
-          slug,
-          content,
-          excerpt,
-          image,
-          published,
-          publishedAt: published ? new Date().toISOString() : null,
-        }),
+        body: JSON.stringify(formData),
+      })
+
+      console.log('[FORM] Ответ получен:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
       })
 
       const data = await response.json()
+      console.log('[FORM] Данные ответа:', data)
 
       if (!response.ok) {
         const errorMessage = data.error || 'Ошибка при сохранении'
         const errorDetails = data.details ? ` (${data.details})` : ''
-        setError(`${errorMessage}${errorDetails}`)
-        console.error('API Error:', data)
+        const errorCode = data.code ? ` [${data.code}]` : ''
+        const fullError = `${errorMessage}${errorDetails}${errorCode}`
+        
+        console.error('[FORM] ✗ Ошибка API:', {
+          status: response.status,
+          error: errorMessage,
+          details: data.details,
+          code: data.code,
+          fullResponse: data,
+        })
+        
+        setError(fullError)
         return
       }
 
+      console.log('[FORM] ✓ Успешно сохранено:', {
+        id: data.id,
+        slug: data.slug,
+      })
+      console.log('[FORM] ===== NewsForm Submit - SUCCESS =====')
+      console.log('[FORM] Время выполнения:', Date.now() - startTime, 'ms')
+
       router.push('/admin/news')
       router.refresh()
-    } catch (err) {
-      setError('Ошибка при сохранении. Попробуйте еще раз.')
+    } catch (err: any) {
+      console.error('[FORM] ===== NewsForm Submit - ERROR =====')
+      console.error('[FORM] Тип ошибки:', err?.constructor?.name || 'Unknown')
+      console.error('[FORM] Сообщение:', err?.message)
+      console.error('[FORM] Stack:', err?.stack)
+      console.error('[FORM] Полная ошибка:', err)
+      console.error('[FORM] Время выполнения до ошибки:', Date.now() - startTime, 'ms')
+      console.error('[FORM] ===== NewsForm Submit - END (ERROR) =====')
+      
+      setError(`Ошибка при сохранении: ${err?.message || 'Неизвестная ошибка'}`)
     } finally {
       setLoading(false)
     }
